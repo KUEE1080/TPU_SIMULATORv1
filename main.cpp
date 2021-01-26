@@ -66,11 +66,11 @@ int main(void) {
 	
 	//DEBUGGING -- MATRIX_SIZE = 4라고 가정하고 디버깅하는게 제일 편하다.
 	type_of_NN = FULLY_CONNECTED;
-	input_row_size = MATRIX_SIZE;
-	input_col_size = MATRIX_SIZE;
+	input_row_size = MATRIX_SIZE * 3;
+	input_col_size = MATRIX_SIZE * 2;
 	//weight의 행과 열은 무조건 같아야 한다!!! ISA에 따라~ only focusing on dense matrix
-	weight_row_size = MATRIX_SIZE;
-	weight_col_size = MATRIX_SIZE;
+	weight_row_size = MATRIX_SIZE * 2;
+	weight_col_size = MATRIX_SIZE * 3;
 
 	//code operation order: memory related initialization done first, and then operate the MMU initialization
 
@@ -87,19 +87,19 @@ int main(void) {
 	if (type_of_NN == FULLY_CONNECTED) {
 		//weight_row_size = input_row_size;
 		//weight_col_size = weight_row_size;
-		WeightFIFO_fetchWeight(weight_row_size, MATRIX_SIZE);
-		WeightFIFO_tileWeight(weight_row_size, MATRIX_SIZE);
+		WeightFIFO_fetchWeight(weight_row_size, weight_col_size);
+		WeightFIFO_tileWeight(weight_row_size, weight_col_size);
 	} // weight setup
 	else if (type_of_NN == CONV) { //콘볼루션은 일단 개발 보류.
-		weight_row_size = input_row_size - filter_size + 1;
-		weight_col_size = input_row_size - filter_size + 1;
+		//weight_row_size = input_row_size - filter_size + 1;
+		//weight_col_size = input_row_size - filter_size + 1;
 
-		WeightFIFO_fetchWeight(weight_row_size * MATRIX_SIZE, input_row_size); //im2col convolution
-		WeightFIFO_tileWeight(weight_row_size, MATRIX_SIZE);
+		//WeightFIFO_fetchWeight(weight_row_size * MATRIX_SIZE, input_row_size); //im2col convolution
+		//WeightFIFO_tileWeight(weight_row_size, MATRIX_SIZE);
 	}
 
 	//Step2: Interconnecting the MMU
-	MMU_initialize(input_row_size, input_col_size, weight_row_size, MATRIX_SIZE);
+	MMU_initialize();
 
 	Control_inputDataSetup(input_row_size, input_col_size);
 	Control_doublebufferSetUp();
@@ -107,9 +107,9 @@ int main(void) {
 
 	int a = Accumulator[0][0];
 
-	while (MMU_run() == IN_PROGRESS) {
+	while (MMU_run(input_row_size, input_col_size, weight_row_size, weight_col_size) == IN_PROGRESS) {
 		//int aaaa = ibuf_index;
-		Control_run(input_row_size, input_col_size, weight_row_size, MATRIX_SIZE);
+		//Control_run1(input_row_size, input_col_size, weight_row_size, weight_col_size);
 		
 		//해당 레이어가 끝났는지 감지해주는 코드도 필요하다. 이건 accumulator가 다 찼는지로 확인하면 될듯
 		

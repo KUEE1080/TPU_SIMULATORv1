@@ -63,15 +63,8 @@ void runAnalysis(int weight_row_len, int weight_col_len, int input_row_len, int 
 	3. 실제 행렬 알고리즘과 systolic array로 구현한 값이 일치하는지 비교해서 true false 출력
 	*/
 
-	//debugging code
-	/*assigned_weight.clear();
-	assigned_weight.push_back(11); assigned_weight.push_back(15); assigned_weight.push_back(19); assigned_weight.push_back(23);
-	assigned_weight.push_back(12); assigned_weight.push_back(16); assigned_weight.push_back(20); assigned_weight.push_back(24);
-	assigned_weight.push_back(13); assigned_weight.push_back(17); assigned_weight.push_back(21); assigned_weight.push_back(25);
-	assigned_weight.push_back(14); assigned_weight.push_back(18); assigned_weight.push_back(22); assigned_weight.push_back(26);*/
-
 	//overflow issue exists
-	utilization_rate = ((double)(std::accumulate(utilization_per_cycle.begin(), utilization_per_cycle.end(), 0)) / (_cycle * input_row_len * input_col_len)) * 100;
+	utilization_rate = ((double)(std::accumulate(utilization_per_cycle.begin(), utilization_per_cycle.end(), 0)) / (_cycle * MATRIX_SIZE * MATRIX_SIZE)) * 100;
 
 	std::cout << std::endl; std::cout << std::endl;
 	std::cout << "------------- Simulation Result -------------" << std::endl;
@@ -79,7 +72,7 @@ void runAnalysis(int weight_row_len, int weight_col_len, int input_row_len, int 
 	std::cout << "1. Total Cycle time: " << _cycle << " cycles" << std::endl;
 	std::cout << "2. Average Utilization rate of Cells: " << utilization_rate << "%" << std::endl;
 
-	if (compareResult(weight_row_len, weight_col_len, input_row_len, input_col_len)) {
+	/*if (compareResult(weight_row_len, weight_col_len, input_row_len, input_col_len)) {
 		std::cout << "3. Result Comparision: Systolic Array result is SAME as the ground truth." << std::endl; }
-	else { std::cout << "3. Result Comparision: Systolic Array result is NOT SAME as the ground truth." << std::endl; }
+	else { std::cout << "3. Result Comparision: Systolic Array result is NOT SAME as the ground truth." << std::endl; }*/
 }

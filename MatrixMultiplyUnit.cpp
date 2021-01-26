@@ -1,4 +1,5 @@
 #include "MatrixMultiplyUnit.h"
+#include "Control.h"
 
 std::vector<Cell> Cells;
 
@@ -52,7 +53,7 @@ void Cell::interconnect(__int8* rval, __int32* dval) {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-void MMU_initialize(int input_row_len, int input_col_len, int weight_row_len, int weight_col_len) {
+void MMU_initialize() {
  
 	//Step3: MMU initialization (loading weights & interconnecting cells)
 	for (int i = 0; i < MATRIX_SIZE * MATRIX_SIZE; i++) { Cells.push_back(Cell()); }
@@ -81,16 +82,15 @@ void MMU_initialize(int input_row_len, int input_col_len, int weight_row_len, in
 	}
 }
 
-int MMU_run() { // operation matrix multiply unit done in ONE CYCLE
+int MMU_run(int input_row_len, int input_col_len, int weight_row_len, int weight_col_len) { // operation matrix multiply unit done in ONE CYCLE
 	if (count_idle_cell == MATRIX_SIZE * MATRIX_SIZE) { return COMPLETE; }
 	else { //propagating inputbuffer to MMU
 		for (int i = 0; i < MATRIX_SIZE; i++) {
 			Cells[i * MATRIX_SIZE].input = UnifiedBuffer[i][ibuf_index];
-			//Cells[i * MATRIX_SIZE].partial_sum = 0; -- bug
 		}
 		ibuf_index++;
 	}
-
+	Control_run1(input_row_len, input_col_len, weight_row_len, weight_col_len);
 	int dd1= Cells[0].input;
 
 	//[개발 사항] MMU보다 큰 행렬일 경우, 이걸 어캐할지는 생각을 해봐야한다.

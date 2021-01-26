@@ -6,14 +6,16 @@ std::vector<std::vector<__int8>> tiled_input;
 __int8 UnifiedBuffer[MATRIX_SIZE][UNIFIED_BUFFER_LENGTH]; //total storage of the unified buffer, Approximately 16MiB
 
 void UnifiedBuffer_fetchInput(int input_row_len, int input_col_len) {
-	srand(time(0));
+	//srand(time(0));
 	//needs to be in 2d array
 	for (int i = 0; i < input_row_len * input_col_len; i++) {
 		//__int8 tmp = (rand() % 256) - (256 / 2);
 		//if (tmp != 0) { node_input.push_back(tmp); } // related to __int8 range, not the matrix size
 		//else { node_input.push_back(1); } // not allowing zero values for the input for simplicity
-		node_input.push_back(i + 1); //-- testing
+		//node_input.push_back(i + 1); //-- testing
+		node_input.push_back(5); //5: in progress data
 	}
+	
 
 	//Step5: Systolic Data Setup
 	
@@ -54,6 +56,8 @@ void UnifiedBuffer_tileInput(int input_row_len, int input_col_len) {
 				fragment_input.push_back(node_input[i * (input_col_len * MATRIX_SIZE) + (k * input_col_len + l)]);
 			}
 		}
+		fragment_input[0] = 1; // 1: start of the data
+		fragment_input[fragment_input.size() - 1] = 10; // 10: end of the data
 		tiled_input.push_back(fragment_input);
 	}
 }

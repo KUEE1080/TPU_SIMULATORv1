@@ -7,42 +7,43 @@ int pipeline_col_index = 0;
 
 void Control_run(int input_row_len, int input_col_len, int weight_row_len, int weight_col_len) {
 	// input_col_len = weight_row_len
-	int max_weight_index = (weight_col_len / MATRIX_SIZE);
-	int max_input_index = (input_col_len / MATRIX_SIZE);
+	int max_weight_index =  (weight_col_len * weight_row_len) / (MATRIX_SIZE * MATRIX_SIZE);
+	int max_input_index = (input_col_len / MATRIX_SIZE); // 얘도 수정되어야할듯 싶다
 
-	if (Control_detectInputTileDone()) {
+	if (Control_detectInputTileDone(input_row_len, input_col_len)) {
 		//tiled_input, tiled_weight 이건 다 애초에 1차원 배열로 저장을 하긴 한다. (쓰일때는 2차원 배열로)
 		pipeline_col_index = 0;
 		
-		if (current_input_tile_index < max_input_index) { current_input_tile_index++; }
-		else { current_input_tile_index = 0; }
+		/*if (current_input_tile_index < max_input_index) {  }
+		else { current_input_tile_index = 0; }*/
+		current_input_tile_index++;
+		current_input_tile_index %= max_input_index;
 
-		if (current_weight_tile_index < max_weight_index) { current_weight_tile_index++; }
-		else { current_weight_tile_index = 0; }
-
-		if (weight) {
+		//if (current_weight_tile_index < max_weight_index) { current_weight_tile_index++; }
+		//else { current_weight_tile_index = 0; }
+		
+		int k = tiled_input[0][0];
+		if (current_weight_tile_index <= max_weight_index) {
+			
 			Control_inputDataSetup(input_row_len, input_col_len); //loading new input values to the inputbuffer
+			current_weight_tile_index++;
+			//Control_doublebufferSetUp();
+			//Control_weightSetup(WEIGHT_LOAD_COL, pipeline_col_index); //loading new weight values to the MMU
+			//pipeline_col_index++;
 		}
-		else {
-
+		else { // no more input data left
+			ibuf_index = 60000; // 걍 다 0만 출력하면 된다
 		}
-
-		
-
-		Control_doublebufferSetUp();
-		Control_weightSetup(WEIGHT_LOAD_COL, pipeline_col_index); //loading new weight values to the MMU
-		pipeline_col_index++;
-		
 	}
 	else { // implementation of pipelining
-		if (pipeline_col_index < MATRIX_SIZE) {
-			Control_weightSetup(WEIGHT_LOAD_COL, pipeline_col_index);
-			pipeline_col_index++;
-		}
-		else { // 더이상 들어갓 인풋이 없고 이제 남은 인풋들이 systolic array 안에서 맴도는 상황
-			//nops
+		//if (pipeline_col_index < MATRIX_SIZE) {
+		//	Control_weightSetup(WEIGHT_LOAD_COL, pipeline_col_index);
+		//	pipeline_col_index++;
+		//}
+		//else { // 더이상 들어갓 인풋이 없고 이제 남은 인풋들이 systolic array 안에서 맴도는 상황
+		//	//nops
 
-		}
+		//}
 	}
 
 	//if (weight_row_len == weight_col_len) { // Case1: Square Matrix
@@ -58,12 +59,30 @@ void Control_run(int input_row_len, int input_col_len, int weight_row_len, int w
 
 }
 
-bool Control_detectInputTileDone() {
+void Control_run1(int input_row_len, int input_col_len, int weight_row_len, int weight_col_len) { //used in MMU_run()
+	int max_weight_index = (weight_col_len * weight_row_len) / (MATRIX_SIZE * MATRIX_SIZE);
+	int max_input_index = (input_col_len * input_row_len) / (MATRIX_SIZE * MATRIX_SIZE);
+
+	if (UnifiedBuffer[MATRIX_SIZE - 1][ibuf_index] == 10) {
+		if (current_weight_tile_index == tiled_weight.size() - 1) { // no more input data left
+			ibuf_index = 60000; // 걍 다 0만 출력하면 된다
+		}
+		else {
+			current_weight_tile_index++;
+			
+			current_input_tile_index++;
+			current_input_tile_index %= max_input_index;
+			Control_inputDataSetup(input_row_len, input_col_len);
+		}
+	}
+}
+
+bool Control_detectInputTileDone(int input_row_len, int input_col_len) { // 얘는 지금 입력 행렬 크기가 Bx256, 즉 256이 고정된 걸로 간주하고 짰다. 변경이 필요하면 얘 수정
 	//static int count = 1; // 실제로 systolic array에 들어가기 직전 사이클도 고려해야한다.
 	//
 	//if (count == MATRIX_SIZE - 2 + MATRIX_SIZE) { count = 1; return true; }
 	//else { count++; return false; }
-	if (ibuf_index == 2 * MATRIX_SIZE - 2) { return true; } //인덱스가 0부터 시작하니까
+	if (UnifiedBuffer[MATRIX_SIZE - 1][ibuf_index] == 10) { return true; } //인덱스가 0부터 시작하니까
 	else { return false; }
 }
 
