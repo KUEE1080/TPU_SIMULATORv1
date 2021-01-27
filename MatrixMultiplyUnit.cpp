@@ -83,13 +83,11 @@ void MMU_initialize() {
 }
 
 int MMU_run(int input_row_len, int input_col_len, int weight_row_len, int weight_col_len) { // operation matrix multiply unit done in ONE CYCLE
-	if (count_idle_cell == MATRIX_SIZE * MATRIX_SIZE) { return COMPLETE; }
-	else { //propagating inputbuffer to MMU
-		for (int i = 0; i < MATRIX_SIZE; i++) {
-			Cells[i * MATRIX_SIZE].input = UnifiedBuffer[i][ibuf_index];
-		}
-		ibuf_index++;
+	for (int i = 0; i < MATRIX_SIZE; i++) {
+		Cells[i * MATRIX_SIZE].input = UnifiedBuffer[i][ibuf_index];
 	}
+	ibuf_index++;
+
 	Control_run1(input_row_len, input_col_len, weight_row_len, weight_col_len);
 	int dd1= Cells[0].input;
 
@@ -108,12 +106,16 @@ int MMU_run(int input_row_len, int input_col_len, int weight_row_len, int weight
 			accumulator_index[i]++;
 		}
 	}
+	int sk = Accumulator[0][0] + Cells[0].input;
 	int d1 = Accumulator[0][0];
 
 	Analysis_incrementIdleRate(count_idle_cell);
 	Analysis_sendCycleDone();
 
-	int dd = ibuf_index;
+	for (int i = 0; i < MATRIX_SIZE * MATRIX_SIZE; i++) {
+		if (Cells[i].partial_sum != 0) { break; }
+		if (i == MATRIX_SIZE * MATRIX_SIZE - 1) { return COMPLETE; }
+	}
 	
 	return IN_PROGRESS;
 }
