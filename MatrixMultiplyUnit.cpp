@@ -3,12 +3,12 @@
 
 std::vector<Cell> Cells;
 
-__int32 Accumulator[ACCUMULATOR_SIZE][MATRIX_SIZE];
-__int8 double_buffer[MATRIX_SIZE][MATRIX_SIZE]; // written in Control.cpp
+int32_t Accumulator[ACCUMULATOR_SIZE][MATRIX_SIZE];
+int8_t double_buffer[MATRIX_SIZE][MATRIX_SIZE]; // written in Control.cpp
 
 //Control logic
-__int32 buffer_accumulator[MATRIX_SIZE]; // MMU¿¡¼­ Accumulator·Î ³Ñ¾î°¡±â Àü¿¡ Àá±ñ ´ë±âÇÏ´Â °ªµé
-int accumulator_index[ACCUMULATOR_SIZE]; //Bx256ÀÏ¶§ °¢ entry¾È¿¡ ÀÖ´Â 256°³ÀÇ 32bit ÀúÀå À§Ä¡¸¦ Æ®·¡Å·ÇÏ±â À§ÇÑ ÀÎµ¦½º ÀúÀå¼Ò
+int32_t buffer_accumulator[MATRIX_SIZE]; // MMUï¿½ï¿½ï¿½ï¿½ Accumulatorï¿½ï¿½ ï¿½Ñ¾î°¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½
+int accumulator_index[ACCUMULATOR_SIZE]; //Bx256ï¿½Ï¶ï¿½ ï¿½ï¿½ entryï¿½È¿ï¿½ ï¿½Ö´ï¿½ 256ï¿½ï¿½ï¿½ï¿½ 32bit ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ Æ®ï¿½ï¿½Å·ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
 int ibuf_index = 0; // index bit to implement the InputBuffer to be like a queue
 //int input_matrix_col = -1;
 int count_idle_cell = 0;
@@ -17,10 +17,10 @@ int count_idle_cell = 0;
 Cell::Cell():
 	weight(0), input(0), partial_sum(0), tmp_in(0), tmp_psum(0), rightval(NULL), downval(NULL) {};
 
-void Cell::setWeight(__int8 w) { this->weight = w; }
+void Cell::setWeight(int8_t w) { this->weight = w; }
 
 void Cell::mac() { // this operation is done in one cycle
-	//ÀÏ´Ü weightÀº preloadµÇ¾îÀÖ°í inputÀº ´Ù Àü´Þ¹Þ¾Ò¾î¾ßÇÑ´Ù.
+	//ï¿½Ï´ï¿½ weightï¿½ï¿½ preloadï¿½Ç¾ï¿½ï¿½Ö°ï¿½ inputï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Þ¹Þ¾Ò¾ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (this->input == 0 || this->weight == 0) { count_idle_cell++; } // used for simulation analysis
 	this->partial_sum += (this->input) * (this->weight);
 }
@@ -44,7 +44,7 @@ void Cell::propagate() {
 	}
 }
 
-void Cell::interconnect(__int8* rval, __int32* dval) {
+void Cell::interconnect(int8_t* rval, int32_t* dval) {
 	this->rightval = rval;
 	this->downval = dval;
 }
@@ -62,7 +62,7 @@ void MMU_initialize() {
 	for (int i = 0; i < MATRIX_SIZE - 1; i++) {
 		for (int j = 0; j < MATRIX_SIZE - 1; j++) {
 			Cells[i * MATRIX_SIZE + j].interconnect(&Cells[i * MATRIX_SIZE + (j + 1)].tmp_in, &Cells[(i + 1) * MATRIX_SIZE + j].tmp_psum);
-			// (__int16* rval, __int32* dval)
+			// (__int16* rval, int32_t* dval)
 		}
 	}
 
@@ -86,13 +86,13 @@ int MMU_run(int input_row_len, int input_col_len, int weight_row_len, int weight
 	//Control_run1(input_row_len, input_col_len, weight_row_len, weight_col_len);
 	int dd1= Cells[0].input;
 
-	//[°³¹ß »çÇ×] MMUº¸´Ù Å« Çà·ÄÀÏ °æ¿ì, ÀÌ°É ¾îÄ³ÇÒÁö´Â »ý°¢À» ÇØºÁ¾ßÇÑ´Ù.
+	//[ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½] MMUï¿½ï¿½ï¿½ï¿½ Å« ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½Ì°ï¿½ ï¿½ï¿½Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Øºï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 
 	//new code
 	count_idle_cell = 0; // resetting the variable for the new cycle
 	for (int i = 0; i < MATRIX_SIZE * MATRIX_SIZE; i++) { Cells[i].mac(); }
 	for (int i = 0; i < MATRIX_SIZE * MATRIX_SIZE; i++) { Cells[i].propagate(); }
-	//void setWeight(__int8 w); ÀÌ°Å pipelineÇÒ ¶§ À¯¿ëÇÏ°Ô ¾²ÀÎ´Ù!
+	//void setWeight(int8_t w); ï¿½Ì°ï¿½ pipelineï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½Î´ï¿½!
 	//the place where you can reload the weight (possible due to the double buffering -> used in large matrix & CNN)
 
 	for (int i = 0; i < MATRIX_SIZE; i++) {

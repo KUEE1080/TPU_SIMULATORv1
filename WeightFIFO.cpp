@@ -2,8 +2,8 @@
 
 #include "WeightFIFO.h"
 
-std::vector<__int8> node_weight;
-std::vector<std::vector<__int8>> tiled_weight; // in reality, weightFIFO are only 4 tiles deep
+std::vector<int8_t> node_weight;
+std::vector<std::vector<int8_t>> tiled_weight; // in reality, weightFIFO are only 4 tiles deep
 
 //int tiled_row, tiled_col;
 
@@ -41,7 +41,7 @@ void WeightFIFO_tileWeight(int weight_row_len, int weight_col_len) { //
 
 	for (int i = 0; i < tiled_row; i++) {
 		for (int j = 0; j < tiled_col; j++) {
-			std::vector<__int8> fragment_weight;
+			std::vector<int8_t> fragment_weight;
 			for (int k = 0; k < MATRIX_SIZE; k++) {
 				for (int l = 0; l < MATRIX_SIZE; l++) {
 					fragment_weight.push_back(node_weight[ ( i * (MATRIX_SIZE * MATRIX_SIZE) + j * MATRIX_SIZE ) + (k * MATRIX_SIZE + l) ]);
@@ -68,7 +68,7 @@ void WeightFIFO_tileWeight(int weight_row_len, int weight_col_len) { //
 
 	for (int i = 0; i < tiled_row; i++) {
 		for (int j = 0; j < tiled_col; j++) {
-			std::vector<__int8> fragment_weight;
+			std::vector<int8_t> fragment_weight;
 			for (int k = 0; k < MATRIX_SIZE; k++) {
 				for (int l = 0; l < MATRIX_SIZE; l++) {
 					fragment_weight.push_back(node_weight[(weight_filtered_col_size * MATRIX_SIZE * i) +

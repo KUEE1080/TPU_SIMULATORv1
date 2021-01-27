@@ -2,11 +2,12 @@
 #include "UnifiedBuffer.h"
 #include "WeightFIFO.h"
 #include "MatrixMultiplyUnit.h"
+#include <inttypes.h>
 
 #define WEIGHT_LOAD_ALL 1
 #define WEIGHT_LOAD_COL 2
 
-//ÇØ´ç ´º·²³×Æ®¿öÅ©¿¡ ¸î°³ÀÇ ·¹ÀÌ¾î°¡ ÀÖ´ÂÁö ÀúÀåÇØ¾ßÇÑ´Ù
+//ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½Å©ï¿½ï¿½ ï¿½î°³ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾î°¡ ï¿½Ö´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½Ñ´ï¿½
 
 extern int current_weight_tile_index;
 extern int current_input_tile_index;

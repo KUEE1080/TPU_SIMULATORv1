@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <inttypes.h>
 #include "UnifiedBuffer.h"
 #include "WeightFIFO.h"
 #include "Analysis.h"
@@ -15,32 +16,32 @@ class Cell {
 public:
 	Cell();
 	
-	__int8 input;
-	__int8 weight;
-	__int32 partial_sum;
-	__int8 tmp_in;
-	__int32 tmp_psum;
+	int8_t input;
+	int8_t weight;
+	int32_t partial_sum;
+	int8_t tmp_in;
+	int32_t tmp_psum;
 	
 
 	//Cell* rightCell;
 	//Cell* downCell;
 
 	//the value will be passed with the pointer variable below! Cell pointer variable is obsolete!
-	//CellÀÌ ¾Æ´Ñ __int32¸¦ ¾²´Â ÀÌÀ¯´Â, Cell·Î ÇØµÎ¸é accumulator¶û ¿¬°áÇÒ ¶§ »ó´çÈ÷ °ïÈ¤½º·¯¿öÁ®¼­ ±×³É general ÇÏ°Ô __int32·Î µ×´Ù.
-	__int8* rightval;
-	__int32* downval;
+	//Cellï¿½ï¿½ ï¿½Æ´ï¿½ int32_tï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, Cellï¿½ï¿½ ï¿½ØµÎ¸ï¿½ accumulatorï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×³ï¿½ general ï¿½Ï°ï¿½ int32_tï¿½ï¿½ ï¿½×´ï¿½.
+	int8_t* rightval;
+	int32_t* downval;
 
 	//void interconnect(Cell* R_Cell, Cell* D_Cell);
-	void interconnect(__int8* rval, __int32* dval);
-	void setWeight(__int8 w);
+	void interconnect(int8_t* rval, int32_t* dval);
+	void setWeight(int8_t w);
 	void mac();
 	void propagate();
 
 };
 
 extern std::vector<Cell> Cells;
-extern __int32 Accumulator[ACCUMULATOR_SIZE][MATRIX_SIZE];
-extern __int8 double_buffer[MATRIX_SIZE][MATRIX_SIZE];
+extern int32_t Accumulator[ACCUMULATOR_SIZE][MATRIX_SIZE];
+extern int8_t double_buffer[MATRIX_SIZE][MATRIX_SIZE];
 extern int accumulator_index[ACCUMULATOR_SIZE];
 extern int ibuf_index;
 

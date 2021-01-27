@@ -1,9 +1,9 @@
 // Assuming the unified buffer is ideal. So the code structure does not consider the hardware constraints
 #include "UnifiedBuffer.h"
 
-std::vector<__int8> node_input; //assuming this is the process of fetching the data from the host memory
-std::vector<std::vector<__int8>> tiled_input;
-__int8 UnifiedBuffer[MATRIX_SIZE][UNIFIED_BUFFER_LENGTH]; //total storage of the unified buffer, Approximately 16MiB
+std::vector<int8_t> node_input; //assuming this is the process of fetching the data from the host memory
+std::vector<std::vector<int8_t>> tiled_input;
+int8_t UnifiedBuffer[MATRIX_SIZE][UNIFIED_BUFFER_LENGTH]; //total storage of the unified buffer, Approximately 16MiB
 
 void UnifiedBuffer_fetchInput(int input_row_len, int input_col_len) {
 	//srand(time(0));
@@ -32,8 +32,8 @@ void UnifiedBuffer_fetchInput(int input_row_len, int input_col_len) {
 	int aaaaa = node_input[0];
 
 	//for (int i = 0; i < input_row_len * input_col_len; i++) {
-	//	//__int8 tmp = (rand() % 256) - (256 / 2);
-	//	//if (tmp != 0) { node_input.push_back(tmp); } // related to __int8 range, not the matrix size
+	//	//int8_t tmp = (rand() % 256) - (256 / 2);
+	//	//if (tmp != 0) { node_input.push_back(tmp); } // related to int8_t range, not the matrix size
 	//	//else { node_input.push_back(1); } // not allowing zero values for the input for simplicity
 	//	//node_input.push_back(i + 1); //-- testing
 	//	node_input.push_back(5); //5: in progress data
@@ -53,11 +53,11 @@ void UnifiedBuffer_fetchInput(int input_row_len, int input_col_len) {
 	
 	/*
 	<pseudo code>
-	ÀÏ´Ü case1ÇÏ°í case2´Â »ïÁßÆ÷¹®À¸·Î ±¸ÇöÇÏ¸é µÉµí ½Í´Ù.
+	ï¿½Ï´ï¿½ case1ï¿½Ï°ï¿½ case2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½Éµï¿½ ï¿½Í´ï¿½.
 
 	*/
 
-	//[ÇöÀç °³¹ß ÁøÇàÁß]
+	//[ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]
 	/*for (int i = 0; i < MATRIX_SIZE; i++) {
 		for (int j = 0; j < input_size; j++) {
 			UnifiedBuffer[i][i + j] = node_input[i * input_size + j];
@@ -71,7 +71,7 @@ void UnifiedBuffer_fetchInput(int input_row_len, int input_col_len) {
 //	if (input_row_len % MATRIX_SIZE != 0) { tiled_row++; }
 //
 //	for (int i = 0; i < tiled_row; i++) {
-//		std::vector<__int8> fragment_input;
+//		std::vector<int8_t> fragment_input;
 //		for (int k = 0; k < MATRIX_SIZE; k++) {
 //			for (int l = 0; l < MATRIX_SIZE; l++) { // --- loop1
 //				fragment_input.push_back(node_input[i * (MATRIX_SIZE * MATRIX_SIZE) + (k * MATRIX_SIZE + l)]);
@@ -114,7 +114,7 @@ void UnifiedBuffer_tileInput(int input_row_len, int input_col_len) {
 
 	for (int i = 0; i < tiled_row; i++) {
 		for (int j = 0; j < tiled_col; j++) {
-			std::vector<__int8> fragment_input;
+			std::vector<int8_t> fragment_input;
 			for (int k = 0; k < MATRIX_SIZE; k++) {
 				for (int l = 0; l < MATRIX_SIZE; l++) {
 					fragment_input.push_back(node_input[( input_filtered_col_size * MATRIX_SIZE * i) + 

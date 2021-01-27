@@ -11,6 +11,7 @@
 
 #include <iostream> 
 #include <string.h>
+#include <inttypes.h>
 #include "MatrixMultiplyUnit.h"
 #include "UnifiedBuffer.h"
 #include "WeightFIFO.h"
@@ -42,14 +43,14 @@ int main(void) {
 	int cycle = 1;
 
 	std::cout<<std::endl; std::cout << std::endl; std::cout << std::endl;
-	std::cout << "¡á¡á¡á¡á¡á¡á¡á¡á < TENSOR PROCESSING UNIT SIMULATOR v1> ¡á¡á¡á¡á¡á¡á¡á¡á" << std::endl;
+	std::cout << "------------- < TENSOR PROCESSING UNIT SIMULATOR v1> -------------" << std::endl;
 	std::cout << "Author : Lee Dong Jae" << std::endl;
 	std::cout << "Description : TPU simulation focused on the systolic array, assuming the memory conditions are ideal." << std::endl;
 	std::cout << "Input : Given Deep Neural Network" << std::endl;
 	std::cout << "Output:" << std::endl;
 	std::cout << "1. shows the input, weights, and the output of the matrix" << std::endl;
 	std::cout << "2. the utilization of the processing elements inside the matrix multiply unit" << std::endl;
-	std::cout << "¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á" << std::endl;
+	std::cout << "----------------------------------------------------" << std::endl;
 	std::cout << std::endl; std::cout << std::endl; std::cout << std::endl;
 
 	//initialize initial values and the settings of the TPU
@@ -80,7 +81,7 @@ int main(void) {
 
 		//input_row_size = MATRIX_SIZE;
 		//input_col_size = MATRIX_SIZE;
-		////weightÀÇ Çà°ú ¿­Àº ¹«Á¶°Ç °°¾Æ¾ß ÇÑ´Ù!!! ISA¿¡ µû¶ó~ only focusing on dense matrix
+		////weightï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ¾ï¿½ ï¿½Ñ´ï¿½!!! ISAï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½~ only focusing on dense matrix
 		//weight_row_size = MATRIX_SIZE;
 		//weight_col_size = MATRIX_SIZE;
 
@@ -123,8 +124,8 @@ int main(void) {
 		MMU_reset();
 		Analysis_incrementIdleRate(0);
 
-		for (int i = 0; i < MATRIX_SIZE; i++) { memset(UnifiedBuffer[i], 0, sizeof(__int8) * UNIFIED_BUFFER_LENGTH); }
-		for (int i = 0; i < ACCUMULATOR_SIZE; i++) { memset(Accumulator[i], 0, sizeof(__int32) * MATRIX_SIZE); }
+		for (int i = 0; i < MATRIX_SIZE; i++) { memset(UnifiedBuffer[i], 0, sizeof(int8_t) * UNIFIED_BUFFER_LENGTH); }
+		for (int i = 0; i < ACCUMULATOR_SIZE; i++) { memset(Accumulator[i], 0, sizeof(int32_t) * MATRIX_SIZE); }
 		memset(accumulator_index, 0, sizeof(int) * ACCUMULATOR_SIZE);
 	}
 
