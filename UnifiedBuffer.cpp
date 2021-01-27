@@ -8,13 +8,38 @@ __int8 UnifiedBuffer[MATRIX_SIZE][UNIFIED_BUFFER_LENGTH]; //total storage of the
 void UnifiedBuffer_fetchInput(int input_row_len, int input_col_len) {
 	//srand(time(0));
 	//needs to be in 2d array
-	for (int i = 0; i < input_row_len * input_col_len; i++) {
-		//__int8 tmp = (rand() % 256) - (256 / 2);
-		//if (tmp != 0) { node_input.push_back(tmp); } // related to __int8 range, not the matrix size
-		//else { node_input.push_back(1); } // not allowing zero values for the input for simplicity
-		//node_input.push_back(i + 1); //-- testing
-		node_input.push_back(5); //5: in progress data
+	int input_filtered_row_size;
+	int input_filtered_col_size;
+
+	if (input_row_len % MATRIX_SIZE == 0) { input_filtered_row_size = input_row_len; }
+	else { input_filtered_row_size = ((input_row_len / MATRIX_SIZE) + 1) * MATRIX_SIZE; } //making it to the multiple of MATRIX_SIZE
+
+	if (input_col_len % MATRIX_SIZE == 0) { input_filtered_col_size = input_col_len; }
+	else { input_filtered_col_size = ((input_col_len / MATRIX_SIZE) + 1) * MATRIX_SIZE; } //making it to the multiple of MATRIX_SIZE
+
+	for (int i = 0; i < input_filtered_row_size; i++) {
+		for (int j = 0; j < input_filtered_col_size; j++) {
+			node_input.push_back(0);
+		}
 	}
+
+	for (int i = 0; i < input_row_len; i++) {
+		for (int j = 0; j < input_col_len; j++) {
+			node_input[i * input_filtered_col_size + j] = 5;
+			//node_input[i * input_filtered_col_size + j] = cc; // testing [시발!!!!]
+			//cc++;
+		}
+	}
+
+	int aaaaa = node_input[0];
+
+	//for (int i = 0; i < input_row_len * input_col_len; i++) {
+	//	//__int8 tmp = (rand() % 256) - (256 / 2);
+	//	//if (tmp != 0) { node_input.push_back(tmp); } // related to __int8 range, not the matrix size
+	//	//else { node_input.push_back(1); } // not allowing zero values for the input for simplicity
+	//	//node_input.push_back(i + 1); //-- testing
+	//	node_input.push_back(5); //5: in progress data
+	//}
 	
 
 	//Step5: Systolic Data Setup
@@ -42,22 +67,78 @@ void UnifiedBuffer_fetchInput(int input_row_len, int input_col_len) {
 	}*/
 }
 
+//void UnifiedBuffer_tileInput(int input_row_len, int input_col_len) { //obsolete
+//	int tiled_row = input_row_len / MATRIX_SIZE;
+//
+//	if (input_row_len % MATRIX_SIZE != 0) { tiled_row++; }
+//
+//	for (int i = 0; i < tiled_row; i++) {
+//		std::vector<__int8> fragment_input;
+//		for (int k = 0; k < MATRIX_SIZE; k++) {
+//			for (int l = 0; l < MATRIX_SIZE; l++) { // --- loop1
+//				fragment_input.push_back(node_input[i * (MATRIX_SIZE * MATRIX_SIZE) + (k * MATRIX_SIZE + l)]);
+//			}
+//		}
+//		fragment_input[0] = 1; // 1: start of the data
+//		fragment_input[(MATRIX_SIZE * MATRIX_SIZE) - 1] = 10; // 10: end of the data
+//		tiled_input.push_back(fragment_input);
+//	}
+//
+//	for (int i = 0; i < tiled_row; i++) {
+//
+//	}
+//
+//	for (int i = 0; i < MATRIX_SIZE; i++) {
+//		for (int j = 0; j < MATRIX_SIZE; j++) {
+//
+//			//tiled_input[tiled_input.size() - 1].[]
+//		}
+//	}
+//
+//	int asd = tiled_input[0][0];
+//}
+
 void UnifiedBuffer_tileInput(int input_row_len, int input_col_len) {
 	int tiled_row = input_row_len / MATRIX_SIZE;
+	int tiled_col = input_col_len / MATRIX_SIZE;
 
-	//[개발 시 팁]!
-	/*
-	어차피 입력 행렬의 크기는 Bx256이고 최대 B의 크기는 256인데, 실제로 loop1과 같은 사태는 일어나지 않을 것이다.
-	*/
+	int input_filtered_row_size;
+	int input_filtered_col_size;
+
+	if (input_row_len % MATRIX_SIZE == 0) { input_filtered_row_size = input_row_len; }
+	else { input_filtered_row_size = ((input_row_len / MATRIX_SIZE) + 1) * MATRIX_SIZE; } //making it to the multiple of MATRIX_SIZE
+
+	if (input_col_len % MATRIX_SIZE == 0) { input_filtered_col_size = input_col_len; }
+	else { input_filtered_col_size = ((input_col_len / MATRIX_SIZE) + 1) * MATRIX_SIZE; } //making it to the multiple of MATRIX_SIZE
+	
+	if (input_row_len % MATRIX_SIZE != 0) { tiled_row++; }
+	if (input_col_len % MATRIX_SIZE != 0) { tiled_col++; }
+
 	for (int i = 0; i < tiled_row; i++) {
-		std::vector<__int8> fragment_input;
-		for (int k = 0; k < MATRIX_SIZE; k++) {
-			for (int l = 0; l < input_col_len; l++) { // --- loop1
-				fragment_input.push_back(node_input[i * (input_col_len * MATRIX_SIZE) + (k * input_col_len + l)]);
+		for (int j = 0; j < tiled_col; j++) {
+			std::vector<__int8> fragment_input;
+			for (int k = 0; k < MATRIX_SIZE; k++) {
+				for (int l = 0; l < MATRIX_SIZE; l++) {
+					fragment_input.push_back(node_input[( input_filtered_col_size * MATRIX_SIZE * i) + 
+						( MATRIX_SIZE * j ) + ( k * input_filtered_col_size + l ) ]);
+				}
 			}
+			tiled_input.push_back(fragment_input);
 		}
-		fragment_input[0] = 1; // 1: start of the data
-		fragment_input[fragment_input.size() - 1] = 10; // 10: end of the data
-		tiled_input.push_back(fragment_input);
 	}
+
+	for (int i = 0; i < tiled_row; i++) { //inserting the start and the end of the input matrix 
+		for (int j = 0; j < tiled_col; j++) {
+			int end_row = MATRIX_SIZE, end_col = MATRIX_SIZE;
+			for (int c = 0; c < MATRIX_SIZE; c++) {
+				if (tiled_input[i * tiled_col + j][c] == 0) { end_col = c; break; }
+			}
+			for (int r = 0; r < MATRIX_SIZE; r++) {
+				if (tiled_input[i * tiled_col + j][r * MATRIX_SIZE] == 0) { end_row = r; break; }
+			}
+			tiled_input[i * tiled_col + j][0] = 1; //implying the start
+			tiled_input[i * tiled_col + j][MATRIX_SIZE * (end_row - 1) + end_col - 1] = 10; //implying the end
+		}
+	}
+	int asd = tiled_input[0][0];
 }

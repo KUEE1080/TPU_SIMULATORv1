@@ -67,9 +67,15 @@ void Control_run1(int input_row_len, int input_col_len, int weight_row_len, int 
 		if (current_weight_tile_index == tiled_weight.size() - 1) { // no more input data left
 			ibuf_index = 60000; // 걍 다 0만 출력하면 된다
 		}
-		else {
-			current_weight_tile_index++;
+		else { // 현재 문제가 있는 코드 영역
+			/*current_weight_tile_index++;
 			
+			current_input_tile_index++;
+			current_input_tile_index %= max_input_index;
+			Control_inputDataSetup(input_row_len, input_col_len);*/
+
+			current_weight_tile_index++;
+
 			current_input_tile_index++;
 			current_input_tile_index %= max_input_index;
 			Control_inputDataSetup(input_row_len, input_col_len);
@@ -94,8 +100,9 @@ void Control_inputDataSetup(int input_row_len, int input_col_len) {
 	}
 	ibuf_index = 0;
 	for (int i = 0; i < MATRIX_SIZE; i++) {
-		for (int j = 0; j < input_col_len; j++) {
-			UnifiedBuffer[i][i + j] = tiled_input[current_input_tile_index][i * input_col_len + j];
+		for (int j = 0; j < MATRIX_SIZE; j++) {
+			int a = current_input_tile_index;
+			UnifiedBuffer[i][i + j] = tiled_input[current_input_tile_index][i * MATRIX_SIZE + j];
 		}
 	}
 }
