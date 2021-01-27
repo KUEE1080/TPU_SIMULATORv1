@@ -41,8 +41,10 @@ public:
 extern std::vector<Cell> Cells;
 extern __int32 Accumulator[ACCUMULATOR_SIZE][MATRIX_SIZE];
 extern __int8 double_buffer[MATRIX_SIZE][MATRIX_SIZE];
+extern int accumulator_index[ACCUMULATOR_SIZE];
 extern int ibuf_index;
 
 void MMU_initialize();
 //void MMU_assignWeight(int weight_size);
 int MMU_run(int input_row_len, int input_col_len, int weight_row_len, int weight_col_len);
+void MMU_reset();

@@ -10,6 +10,7 @@
 //############# Code segment #################
 
 #include <iostream> 
+#include <string.h>
 #include "MatrixMultiplyUnit.h"
 #include "UnifiedBuffer.h"
 #include "WeightFIFO.h"
@@ -25,6 +26,12 @@ int input_col_size;
 int weight_row_size;
 int weight_col_size;
 
+int number_of_layers;
+std::vector<int> NN_input_row_size;
+std::vector<int> NN_input_col_size;
+std::vector<int> NN_weight_row_size;
+std::vector<int> NN_weight_col_size;
+
 int type_of_NN; // FC or CONV
 
 //only used for CONV layer
@@ -38,7 +45,7 @@ int main(void) {
 	std::cout << "■■■■■■■■ < TENSOR PROCESSING UNIT SIMULATOR v1> ■■■■■■■■" << std::endl;
 	std::cout << "Author : Lee Dong Jae" << std::endl;
 	std::cout << "Description : TPU simulation focused on the systolic array, assuming the memory conditions are ideal." << std::endl;
-	std::cout << "Input : clock speed & input matrix size (the values will be all randomized)" << std::endl;
+	std::cout << "Input : Given Deep Neural Network" << std::endl;
 	std::cout << "Output:" << std::endl;
 	std::cout << "1. shows the input, weights, and the output of the matrix" << std::endl;
 	std::cout << "2. the utilization of the processing elements inside the matrix multiply unit" << std::endl;
@@ -47,84 +54,81 @@ int main(void) {
 
 	//initialize initial values and the settings of the TPU
 
-	//std::cout << "The type of the Neural Network (1: FC, 2:CONV)." << std::endl;
-	//std::cin >> type_of_NN;
-	//
-	//if (type_of_NN == FULLY_CONNECTED) {
-	//	//FC
-	//	// Reason of 2048x2048 size limitation: takes too long
-	//	std::cout << "The size of the Input matrix (row x col). The row & size should be multiple of 256, maxsize is 2048" << std::endl;
-	//	std::cin >> input_row_size >> input_col_size;
-	//}
-	//else if (type_of_NN == CONV){
-	//	//CONV -- not implemented yet!!
-	//	std::cout << "The size of the Input matrix (row x col). The row & size should be multiple of 256, maxsize is 2048" << std::endl;
-	//	std::cin >> input_row_size >> input_col_size;
-	//	std::cout << "The size of the filter (assuming stride is always 1)" << std::endl;
-	//	std::cin >> filter_size;
-	//}
+	std::cout << "Number of layers" << std::endl;
+	std::cin >> number_of_layers;
+
+	for (int i = 0; i < number_of_layers; i++) {
+		std::cout << std::endl; std::cout << std::endl;
+		std::cout << "------------- Layer number " << i << " -------------" << std::endl;
+
+		//FC
+		std::cout << "The size of the Weight matrix (row col)." << std::endl;
+		std::cin >> weight_row_size >> weight_col_size;
+
+		std::cout << "The size of the Input matrix (row col)." << std::endl;
+		std::cin >> input_row_size >> input_col_size;
+
+		NN_input_row_size.push_back(input_row_size);
+		NN_input_col_size.push_back(input_col_size);
+
+		NN_weight_row_size.push_back(weight_row_size);
+		NN_weight_col_size.push_back(weight_col_size);
+	}
+
+	for (int i = 0; i < number_of_layers; i++) {
+		//type_of_NN = FULLY_CONNECTED;
+
+		//input_row_size = MATRIX_SIZE;
+		//input_col_size = MATRIX_SIZE;
+		////weight의 행과 열은 무조건 같아야 한다!!! ISA에 따라~ only focusing on dense matrix
+		//weight_row_size = MATRIX_SIZE;
+		//weight_col_size = MATRIX_SIZE;
+
+		//code operation order: memory related initialization done first, and then operate the MMU initialization
+
+		/*
+		[Matrix Multiplication Operation Mode]
+		1. MATRIX_MATRIX_MULT => Input: Matrix, Weight: Matrix
+		2. Convolve
+		*/
+
+		//Step1: Input data & weight initialization
+		UnifiedBuffer_fetchInput(NN_input_row_size[i], NN_input_col_size[i]); // input setup
+		UnifiedBuffer_tileInput(NN_input_row_size[i], NN_input_col_size[i]);
+
+		WeightFIFO_fetchWeight(NN_weight_row_size[i], NN_weight_col_size[i]);
+		WeightFIFO_tileWeight(NN_weight_row_size[i], NN_weight_col_size[i]);
+
+		//Step2: Interconnecting the MMU
+		MMU_initialize();
+
+		Control_setTiledInput(0);
+		Control_setTiledWeight(0);
+
+		while (MMU_run(NN_input_row_size[i], NN_input_col_size[i], NN_weight_row_size[i], NN_weight_col_size[i]) == IN_PROGRESS) {
+			Control_run2(NN_input_row_size[i], NN_input_col_size[i], NN_weight_row_size[i], NN_weight_col_size[i]);
+			cycle++;
+		}
+		runAnalysis(i, NN_weight_row_size[i], NN_weight_col_size[i], NN_input_row_size[i], NN_input_col_size[i], cycle); //displaying the result of the TPU simulation
+
+		//resetting the states to calculate the next layer
+		ibuf_index = 0;
+		cycle = 1;
+		Cells.clear();
+		node_input.clear();
+		node_weight.clear();
+		tiled_input.clear();
+		tiled_weight.clear();
+		utilization_per_cycle.clear();
+		MMU_reset();
+		Analysis_incrementIdleRate(0);
+
+		for (int i = 0; i < MATRIX_SIZE; i++) { memset(UnifiedBuffer[i], 0, sizeof(__int8) * UNIFIED_BUFFER_LENGTH); }
+		for (int i = 0; i < ACCUMULATOR_SIZE; i++) { memset(Accumulator[i], 0, sizeof(__int32) * MATRIX_SIZE); }
+		memset(accumulator_index, 0, sizeof(int) * ACCUMULATOR_SIZE);
+	}
+
 	
-	//DEBUGGING -- MATRIX_SIZE = 4라고 가정하고 디버깅하는게 제일 편하다.
-	type_of_NN = FULLY_CONNECTED;
-	//input_row_size = 2;
-	//input_col_size = 2;
-	////weight의 행과 열은 무조건 같아야 한다!!! ISA에 따라~ only focusing on dense matrix
-	//weight_row_size = 2;
-	//weight_col_size = 2;
-
-	input_row_size = MATRIX_SIZE;
-	input_col_size = MATRIX_SIZE;
-	//weight의 행과 열은 무조건 같아야 한다!!! ISA에 따라~ only focusing on dense matrix
-	weight_row_size = MATRIX_SIZE;
-	weight_col_size = MATRIX_SIZE;
-
-	//code operation order: memory related initialization done first, and then operate the MMU initialization
-
-	/*
-	[Matrix Multiplication Operation Mode]
-	1. MATRIX_MATRIX_MULT => Input: Matrix, Weight: Matrix
-	2. Convolve
-	*/
-
-	//Step1: Input data & weight initialization
-	UnifiedBuffer_fetchInput(input_row_size, input_col_size); // input setup
-	UnifiedBuffer_tileInput(input_row_size, input_col_size);
-
-	if (type_of_NN == FULLY_CONNECTED) {
-		//weight_row_size = input_row_size;
-		//weight_col_size = weight_row_size;
-		WeightFIFO_fetchWeight(weight_row_size, weight_col_size);
-		WeightFIFO_tileWeight(weight_row_size, weight_col_size);
-	} // weight setup
-	else if (type_of_NN == CONV) { //콘볼루션은 일단 개발 보류.
-		//weight_row_size = input_row_size - filter_size + 1;
-		//weight_col_size = input_row_size - filter_size + 1;
-
-		//WeightFIFO_fetchWeight(weight_row_size * MATRIX_SIZE, input_row_size); //im2col convolution
-		//WeightFIFO_tileWeight(weight_row_size, MATRIX_SIZE);
-	}
-
-	//Step2: Interconnecting the MMU
-	MMU_initialize();
-
-	Control_inputDataSetup(input_row_size, input_col_size);
-	Control_doublebufferSetUp();
-	Control_weightSetup(WEIGHT_LOAD_ALL, -1);
-
-	int a = Accumulator[0][0];
-
-	while (MMU_run(input_row_size, input_col_size, weight_row_size, weight_col_size) == IN_PROGRESS) {
-		//int aaaa = ibuf_index;
-		Control_run1(input_row_size, input_col_size, weight_row_size, weight_col_size);
-		
-		//해당 레이어가 끝났는지 감지해주는 코드도 필요하다. 이건 accumulator가 다 찼는지로 확인하면 될듯
-		
-		cycle++;
-	}
-	//int d = utilization_per_cycle[0];
-	//Activation_run(ReLU);
-	//int d1 = activation_node[0];
-
-	runAnalysis(weight_row_size, weight_col_size, input_row_size, input_col_size, cycle); //displaying the result of the TPU simulation
+	
 	return 0;
 }

@@ -5,7 +5,7 @@
 std::vector<__int8> node_weight;
 std::vector<std::vector<__int8>> tiled_weight; // in reality, weightFIFO are only 4 tiles deep
 
-int tiled_row, tiled_col;
+//int tiled_row, tiled_col;
 
 void WeightFIFO_fetchWeight(int weight_row_len, int weight_col_len) { // not considering the Weight Memory since it is ideal
 	//srand(time(0));
@@ -30,7 +30,6 @@ void WeightFIFO_fetchWeight(int weight_row_len, int weight_col_len) { // not con
 			node_weight[i * weight_filtered_col_size + j] = 2;
 		}
 	}
-	int af = node_weight[0];
 }
 
 void WeightFIFO_tileWeight(int weight_row_len, int weight_col_len) { // 
@@ -79,5 +78,4 @@ void WeightFIFO_tileWeight(int weight_row_len, int weight_col_len) { //
 			tiled_weight.push_back(fragment_weight);
 		}
 	}
-	int asd = tiled_weight[0][0];
 }

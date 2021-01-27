@@ -135,7 +135,9 @@ void UnifiedBuffer_tileInput(int input_row_len, int input_col_len) {
 				if (tiled_input[i * tiled_col + j][r * MATRIX_SIZE] == 0) { end_row = r; break; }
 			}
 			tiled_input[i * tiled_col + j][0] = 1; //implying the start
-			tiled_input[i * tiled_col + j][MATRIX_SIZE * (end_row - 1) + end_col - 1] = 10; //implying the end
+			//tiled_input[i * tiled_col + j][MATRIX_SIZE * (end_row - 1) + end_col - 1] = 10; //implying the end
+			//tiled_input[i * tiled_col + j][MATRIX_SIZE * MATRIX_SIZE - 1] = 10;
+			tiled_input[i * tiled_col + j][MATRIX_SIZE * (MATRIX_SIZE - 1) + end_col - 1] = 10; //implying the end
 		}
 	}
 	int asd = tiled_input[0][0];

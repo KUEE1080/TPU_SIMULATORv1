@@ -15,4 +15,4 @@ void Analysis_incrementIdleRate(int cnt);
 void Analysis_sendCycleDone();
 
 //used in main.cpp
-void runAnalysis(int weight_row_len, int weight_col_len, int input_row_len, int input_col_len, int _cycle);
+void runAnalysis(int num_of_layer, int weight_row_len, int weight_col_len, int input_row_len, int input_col_len, int _cycle);
