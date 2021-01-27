@@ -11,7 +11,7 @@
 extern int current_weight_tile_index;
 extern int current_input_tile_index;
 
-void Control_run(int input_row_len, int input_col_len, int weight_row_len, int weight_col_len);
+//void Control_run(int input_row_len, int input_col_len, int weight_row_len, int weight_col_len);
 void Control_run1(int input_row_len, int input_col_len, int weight_row_len, int weight_col_len);
 void Control_inputDataSetup(int input_row_len, int input_col_len);
 void Control_doublebufferSetUp();

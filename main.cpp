@@ -66,17 +66,17 @@ int main(void) {
 	
 	//DEBUGGING -- MATRIX_SIZE = 4라고 가정하고 디버깅하는게 제일 편하다.
 	type_of_NN = FULLY_CONNECTED;
-	//input_row_size = MATRIX_SIZE * 2;
-	//input_col_size = MATRIX_SIZE;
-	////weight의 행과 열은 무조건 같아야 한다!!! ISA에 따라~ only focusing on dense matrix
-	//weight_row_size = MATRIX_SIZE;
-	//weight_col_size = MATRIX_SIZE * 2;
-
-	input_row_size = MATRIX_SIZE / 2;
-	input_col_size = MATRIX_SIZE / 2;
+	input_row_size = 16;
+	input_col_size = 16;
 	//weight의 행과 열은 무조건 같아야 한다!!! ISA에 따라~ only focusing on dense matrix
-	weight_row_size = MATRIX_SIZE / 2;
-	weight_col_size = MATRIX_SIZE / 2;
+	weight_row_size = 16;
+	weight_col_size = 16;
+
+	//input_row_size = MATRIX_SIZE / 2;
+	//input_col_size = MATRIX_SIZE / 2;
+	////weight의 행과 열은 무조건 같아야 한다!!! ISA에 따라~ only focusing on dense matrix
+	//weight_row_size = MATRIX_SIZE / 2;
+	//weight_col_size = MATRIX_SIZE / 2;
 
 	//code operation order: memory related initialization done first, and then operate the MMU initialization
 

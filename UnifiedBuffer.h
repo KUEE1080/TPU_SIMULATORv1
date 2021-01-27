@@ -7,7 +7,7 @@
 //#include "MatrixMultiplyUnit.h"
 
 #define UNIFIED_BUFFER_LENGTH 65536 // trying to match the actual size of the 
-#define MATRIX_SIZE 32
+#define MATRIX_SIZE 256
 
 extern std::vector<__int8> node_input; //assuming this is the process of fetching the data from the host memory
 extern std::vector<std::vector<__int8>> tiled_input;

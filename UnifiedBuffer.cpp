@@ -26,8 +26,6 @@ void UnifiedBuffer_fetchInput(int input_row_len, int input_col_len) {
 	for (int i = 0; i < input_row_len; i++) {
 		for (int j = 0; j < input_col_len; j++) {
 			node_input[i * input_filtered_col_size + j] = 5;
-			//node_input[i * input_filtered_col_size + j] = cc; // testing [½Ã¹ß!!!!]
-			//cc++;
 		}
 	}
 

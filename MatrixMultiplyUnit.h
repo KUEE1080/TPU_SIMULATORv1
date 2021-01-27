@@ -5,7 +5,7 @@
 #include "WeightFIFO.h"
 #include "Analysis.h"
 
-#define MATRIX_SIZE 32
+#define MATRIX_SIZE 256
 #define ACCUMULATOR_SIZE 4096
 
 #define IN_PROGRESS 0
